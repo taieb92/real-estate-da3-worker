@@ -51,6 +51,16 @@ def normalized_confidence(confidence, np):
     return np.clip(confidence / scale, 0, 1).astype(np.float32) if scale > 1e-8 else np.zeros_like(confidence)
 
 
+def model_confidence(depth, raw_confidence, np):
+    """Create a renderer confidence map for DA3 and confidence-less DA3 Mono."""
+    if raw_confidence is None:
+        return (np.isfinite(depth) & (depth > 0)).astype(np.float32)
+    confidence = np.asarray(raw_confidence, dtype=np.float32)
+    if confidence.shape != depth.shape or not np.isfinite(confidence).all():
+        raise RuntimeError("INVALID_DEPTH_OUTPUT")
+    return confidence
+
+
 def load_model():
     import torch
     from depth_anything_3.api import DepthAnything3
@@ -133,10 +143,10 @@ def infer(model, request: dict, image_bytes: bytes) -> dict:
                 process_res_method="upper_bound_resize", infer_gs=False,
                 export_dir=None, export_format="mini_npz")
     depth = np.asarray(prediction.depth, dtype=np.float32)
-    confidence = np.asarray(prediction.conf, dtype=np.float32)
-    if (depth.ndim != 3 or depth.shape[0] != 1 or confidence.shape != depth.shape
+    if (depth.ndim != 3 or depth.shape[0] != 1
             or not np.isfinite(depth).all() or np.any(depth <= 0)):
         raise RuntimeError("INVALID_DEPTH_OUTPUT")
+    confidence = model_confidence(depth, getattr(prediction, "conf", None), np)
     normalized = normalized_confidence(confidence, np)
     valid = np.isfinite(depth) & (depth > 0)
     gradient_y, gradient_x = np.gradient(depth[0])

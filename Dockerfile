@@ -31,7 +31,8 @@ RUN git clone https://github.com/ByteDance-Seed/Depth-Anything-3.git /opt/depth-
 
 RUN HF_HUB_OFFLINE=0 TRANSFORMERS_OFFLINE=0 python download_pinned_da3.py \
     && rm download_pinned_da3.py da3-inference-only.patch \
-    && python -m pip cache purge
+    && python -m pip cache purge \
+    && chown -R 1000:1000 /app
 
 USER 1000:1000
 CMD ["python", "-u", "runpod_handler.py"]

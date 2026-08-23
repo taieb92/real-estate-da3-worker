@@ -36,7 +36,7 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/taieb92/real-estate-da3:da3mono-large-f465978
+            ghcr.io/taieb92/real-estate-da3:da3mono-large-f465978-r2
             ghcr.io/taieb92/real-estate-da3:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max

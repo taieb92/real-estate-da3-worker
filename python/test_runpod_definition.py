@@ -74,6 +74,20 @@ class RunPodDefinitionTest(unittest.TestCase):
             artifact.write_bytes(b"verified-model-fixture")
             self.assertEqual(MODULE.file_sha256(artifact), hashlib.sha256(artifact.read_bytes()).hexdigest())
 
+    def test_mono_output_without_confidence_uses_valid_depth_mask(self):
+        import numpy as np
+
+        depth = np.array([[[1.0, 2.0], [3.0, 4.0]]], dtype=np.float32)
+        confidence = MODULE.model_confidence(depth, None, np)
+        np.testing.assert_array_equal(confidence, np.ones_like(depth))
+
+    def test_malformed_confidence_is_rejected(self):
+        import numpy as np
+
+        depth = np.ones((1, 2, 2), dtype=np.float32)
+        with self.assertRaisesRegex(RuntimeError, "INVALID_DEPTH_OUTPUT"):
+            MODULE.model_confidence(depth, np.ones((2, 2), dtype=np.float32), np)
+
 
 if __name__ == "__main__":
     unittest.main()
