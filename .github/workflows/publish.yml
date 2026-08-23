@@ -17,7 +17,9 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Run definition tests
-        run: python -m unittest python/test_runpod_definition.py
+        run: |
+          python -m pip install --disable-pip-version-check numpy==1.26.4
+          python -m unittest python/test_runpod_definition.py
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
