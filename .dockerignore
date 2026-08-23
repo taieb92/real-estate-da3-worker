@@ -1,0 +1,10 @@
+.git
+.github
+__pycache__
+*.pyc
+*.pyo
+*.log
+.env*
+README.md
+LICENSE
+python/test_*.py
